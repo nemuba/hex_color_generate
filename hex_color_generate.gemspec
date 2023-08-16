@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description = "This gem generate hexadecimal color"
   spec.homepage = "https://github.com/nemuba/hex_color_generate"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 2.7.1"
+  spec.required_ruby_version = ">= 2.6"
 
   spec.metadata["homepage_uri"] = "https://github.com/nemuba/hex_color_generate"
   spec.metadata["source_code_uri"] = "https://github.com/nemuba/hex_color_generate/tree/main"

@@ -9,33 +9,19 @@ RSpec.describe "HexColorGenerate" do
     expect(HexColorGenerate::COLORS).not_to be nil
   end
 
-  it "has a method generate" do
-    expect(HexColorGenerate).to respond_to(:generate)
-  end
+  it { expect(HexColorGenerate).to respond_to(:generate) }
 
-  it "has a method colors" do
-    expect(HexColorGenerate).to respond_to(:colors)
-  end
+  it { expect(HexColorGenerate).to respond_to(:colors) }
 
   HexColorGenerate::COLORS.each do |color, _|
-    it "has a method #{color}" do
-      expect(HexColorGenerate).to respond_to(color)
-    end
+    it { expect(HexColorGenerate).to respond_to(color) }
 
-    it "has a method #{color}_keys" do
-      expect(HexColorGenerate).to respond_to("#{color}_keys")
-    end
+    it { expect(HexColorGenerate).to respond_to("#{color}_keys") }
 
-    it "has a method #{color}_values" do
-      expect(HexColorGenerate).to respond_to("#{color}_values")
-    end
+    it { expect(HexColorGenerate).to respond_to("#{color}_values") }
 
-    it "return a color in hex format" do
-      expect(HexColorGenerate.send(color)).to match(/^#[0-9a-f]{6}$/)
-    end
+    it { expect(HexColorGenerate.send(color)).to match(/^#[0-9a-f]{6}$/) }
 
-    it "return a color in hex format in string" do
-      expect(HexColorGenerate.send(color, type: color.to_s)).to be_a(String)
-    end
+    it { expect(HexColorGenerate.send(color, type: color.to_s)).to be_a(String) }
   end
 end
