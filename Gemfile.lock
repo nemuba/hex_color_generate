@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    hex_color_generate (0.1.0)
+    hex_color_generate (0.1.1)
 
 GEM
   remote: https://rubygems.org/
