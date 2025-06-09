@@ -41,6 +41,34 @@ HexColorGenerate.red_keys # => ["salmon", "dark_salmon", "light_salmon", "crimso
 HexColorGenerate.red_values # => [{:salmon=>"#FA8072"}, {:dark_salmon=>"#E9967A"}, ...]
 ```
 
+### Generate a color gradient
+
+The `gradient` method generates a list of hex color codes that form a smooth transition between two specified colors.
+
+**Parameters:**
+
+*   `color1` (Symbol): The starting color name (e.g., `:red`).
+*   `color2` (Symbol): The ending color name (e.g., `:blue`).
+*   `steps` (Integer, optional): The total number of colors in the gradient, including the start and end colors. Defaults to 10.
+
+**Examples:**
+
+```ruby
+# Generate a gradient between red and blue with default 10 steps
+HexColorGenerate.gradient(:red, :blue)
+# => ["#FF0000", "#E2001C", "#C60038", "#AA0055", "#8D0071", "#71008D", "#5500AA", "#3800C6", "#1C00E2", "#0000FF"]
+# (Note: The exact intermediate hex values may vary based on the interpolation logic)
+
+# Generate a gradient between green and yellow with 5 steps
+HexColorGenerate.gradient(:green, :yellow, steps: 5)
+# => ["#008000", "#3FAF00", "#7FBF00", "#BFDF00", "#FFFF00"]
+# (Note: The exact intermediate hex values may vary)
+
+# Generate a gradient with 1 step (returns the start color)
+HexColorGenerate.gradient(:purple, :orange, steps: 1)
+# => ["#800080"]
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

@@ -23,29 +23,57 @@ module HexColorGenerate
       COLORS.keys
     end
 
-    COLORS.each do |color, types|
-      # define method with param type with default value color
+    # Generate a gradient between two colors
+    # @param color1 [Symbol] the starting color name
+    # @param color2 [Symbol] the ending color name
+    # @param steps [Integer] the number of steps in the gradient
+    # @return [Array<String>] an array of hex color strings
+    def gradient(color1, color2, steps: 10)
+      raise ArgumentError, "steps must be 1 or greater" if steps < 1
+
+      hex_color1 = send(color1)
+      hex_color2 = send(color2)
+
+      rgb1 = hex_to_rgb(hex_color1)
+      rgb2 = hex_to_rgb(hex_color2)
+
+      gradient_colors = []
+      steps.times do |i|
+        ratio = (steps == 1) ? 0.0 : i.to_f / (steps - 1)
+        r = (rgb1[0] * (1 - ratio) + rgb2[0] * ratio).round
+        g = (rgb1[1] * (1 - ratio) + rgb2[1] * ratio).round
+        b = (rgb1[2] * (1 - ratio) + rgb2[2] * ratio).round
+        gradient_colors << rgb_to_hex(r, g, b)
+      end
+      gradient_colors
+    end
+
+    COLORS.each do |method_name_sym, color_types_hash|
+      # define method with param type with default value method_name_sym
       # @param type [Symbol] type of color
       # @return [String] hex color
-      define_method color do |type: color|
-        colors = types.freeze
-        color = colors[type.to_s]
-        raise ArgumentError, "Invalid color type: #{type}" unless color
+      define_method method_name_sym do |type: method_name_sym| # Changed type_param back to type
+        available_types = color_types_hash.freeze
+        hex_value_for_type = available_types[type.to_s] # Changed type_param back to type
+        unless hex_value_for_type
+          # Using type in the error message is fine as it's the parameter name
+          raise ArgumentError, "Invalid color type: '#{type}' for color method ':#{method_name_sym}'"
+        end
 
-        format_color(color)
+        format_color(hex_value_for_type)
       end
 
       # define method to get all colors of type
       # @return [Array] array of colors
-      define_method "#{color}_keys" do
-        types.keys.map(&:to_sym)
+      define_method "#{method_name_sym}_keys" do
+        color_types_hash.keys.map(&:to_sym)
       end
 
       # define method to get all colors of type
       # @return [Hash] hash of colors
-      define_method "#{color}_values" do
+      define_method "#{method_name_sym}_values" do
         # transforma values and symbolize keys
-        types.transform_keys(&:to_sym).transform_values(&method(:format_color))
+        color_types_hash.transform_keys(&:to_sym).transform_values(&method(:format_color))
       end
     end
 
@@ -54,8 +82,29 @@ module HexColorGenerate
     # format color to hex
     # @param color [String] color
     # @return [String] hex color
-    def format_color(color)
-      "##{color}"
+    def format_color(color_string)
+      "##{color_string.upcase}" # Ensure uppercase
+    end
+
+    # Convert hex color string to RGB array
+    # @param hex [String] hex color string (e.g., "#RRGGBB" or "RRGGBB")
+    # @return [Array<Integer>] RGB array [r, g, b]
+    def hex_to_rgb(hex)
+      hex = hex.start_with?("#") ? hex[1..] : hex
+      hex.scan(/../).map(&:hex)
+    end
+
+    # Convert RGB integers to hex color string
+    # @param r [Integer] red component (0-255)
+    # @param g [Integer] green component (0-255)
+    # @param b [Integer] blue component (0-255)
+    # @return [String] hex color string (e.g., "#RRGGBB")
+    def rgb_to_hex(r, g, b)
+      components = [r, g, b].map do |c|
+        val = c.clamp(0, 255).to_s(16)
+        val.length == 1 ? "0#{val}" : val
+      end
+      "##{components.join.upcase}"
     end
   end
 end
