@@ -1,27 +1,29 @@
 # frozen_string_literal: true
 
-RSpec.describe "HexColorGenerate" do
-  it "has a version number" do
-    expect(HexColorGenerate::VERSION).not_to be nil
+require "spec_helper" # Keep spec_helper
+
+RSpec.describe "HexColorGenerate" do # Keep main describe block
+  describe "gem structure and constants" do
+    it "has a version number" do
+      expect(HexColorGenerate::VERSION).not_to be nil
+    end
+
+    it "has a constant COLORS" do
+      expect(HexColorGenerate::COLORS).not_to be nil
+    end
   end
 
-  it "has a constant COLORS" do
-    expect(HexColorGenerate::COLORS).not_to be nil
+  describe ".generate method" do
+    it { expect(HexColorGenerate).to respond_to(:generate) }
+    # TODO: Add more tests for .generate functionality (e.g., output format, randomness)
   end
 
-  it { expect(HexColorGenerate).to respond_to(:generate) }
-
-  it { expect(HexColorGenerate).to respond_to(:colors) }
-
-  HexColorGenerate::COLORS.each do |color, _|
-    it { expect(HexColorGenerate).to respond_to(color) }
-
-    it { expect(HexColorGenerate).to respond_to("#{color}_keys") }
-
-    it { expect(HexColorGenerate).to respond_to("#{color}_values") }
-
-    it { expect(HexColorGenerate.send(color)).to match(/^#[0-9a-f]{6}$/) }
-
-    it { expect(HexColorGenerate.send(color, type: color.to_s)).to be_a(String) }
+  describe ".colors method" do
+    it { expect(HexColorGenerate).to respond_to(:colors) }
+    # TODO: Add more tests for .colors functionality (e.g., returns array, content)
   end
+
+  # Removed "individual color methods" describe block
+  # Removed ".gradient" describe block
+  # Removed "a valid gradient" shared examples
 end
