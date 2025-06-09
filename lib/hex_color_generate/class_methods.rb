@@ -39,10 +39,8 @@ module HexColorGenerate
 
       gradient_colors = []
       steps.times do |i|
-        ratio = (steps == 1) ? 0.0 : i.to_f / (steps - 1)
-        r = (rgb1[0] * (1 - ratio) + rgb2[0] * ratio).round
-        g = (rgb1[1] * (1 - ratio) + rgb2[1] * ratio).round
-        b = (rgb1[2] * (1 - ratio) + rgb2[2] * ratio).round
+        ratio = steps == 1 ? 0.0 : i.to_f / (steps - 1) # Corrected ternary parentheses
+        r, g, b = _interpolate_rgb_components(rgb1, rgb2, ratio) # Use helper
         gradient_colors << rgb_to_hex(r, g, b)
       end
       gradient_colors
@@ -95,16 +93,28 @@ module HexColorGenerate
     end
 
     # Convert RGB integers to hex color string
-    # @param r [Integer] red component (0-255)
-    # @param g [Integer] green component (0-255)
-    # @param b [Integer] blue component (0-255)
+    # @param red_value [Integer] red component (0-255)
+    # @param green_value [Integer] green component (0-255)
+    # @param blue_value [Integer] blue component (0-255)
     # @return [String] hex color string (e.g., "#RRGGBB")
-    def rgb_to_hex(r, g, b)
-      components = [r, g, b].map do |c|
-        val = c.clamp(0, 255).to_s(16)
+    def rgb_to_hex(red_value, green_value, blue_value)
+      components = [red_value, green_value, blue_value].map do |color_component|
+        val = color_component.clamp(0, 255).to_s(16)
         val.length == 1 ? "0#{val}" : val
       end
       "##{components.join.upcase}"
+    end
+
+    # Interpolate RGB components
+    # @param rgb1 [Array<Integer>] starting RGB color
+    # @param rgb2 [Array<Integer>] ending RGB color
+    # @param ratio [Float] interpolation ratio
+    # @return [Array<Integer>] interpolated RGB array [r, g, b]
+    def _interpolate_rgb_components(rgb1, rgb2, ratio)
+      r = ((rgb1[0] * (1 - ratio)) + (rgb2[0] * ratio)).round
+      g = ((rgb1[1] * (1 - ratio)) + (rgb2[1] * ratio)).round
+      b = ((rgb1[2] * (1 - ratio)) + (rgb2[2] * ratio)).round
+      [r, g, b]
     end
   end
 end

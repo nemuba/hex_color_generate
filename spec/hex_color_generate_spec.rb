@@ -13,16 +13,28 @@ RSpec.describe "HexColorGenerate" do
 
   it { expect(HexColorGenerate).to respond_to(:colors) }
 
-  HexColorGenerate::COLORS.each do |color, _|
-    it { expect(HexColorGenerate).to respond_to(color) }
+  describe "individual color methods" do
+    HexColorGenerate::COLORS.each do |color, _|
+      context "for :#{color}" do # Add context for better grouping per color
+        it { expect(HexColorGenerate).to respond_to(color) }
+        it { expect(HexColorGenerate).to respond_to("#{color}_keys") }
+        it { expect(HexColorGenerate).to respond_to("#{color}_values") }
 
-    it { expect(HexColorGenerate).to respond_to("#{color}_keys") }
+        describe ".#{color}" do # Describe the method itself
+          it "returns a valid hex color string by default" do
+            expect(HexColorGenerate.send(color)).to match(/^#[0-9a-fA-F]{6}$/)
+          end
 
-    it { expect(HexColorGenerate).to respond_to("#{color}_values") }
-
-    it { expect(HexColorGenerate.send(color)).to match(/^#[0-9a-fA-F]{6}$/) } # Updated regex
-
-    it { expect(HexColorGenerate.send(color, type: color.to_s)).to be_a(String) }
+          it "accepts a type parameter and returns a string" do
+            # Assuming the first key in types is a valid type for that color
+            # This makes the test more robust than hardcoding e.g. color.to_s
+            example_type = HexColorGenerate::COLORS[color].keys.first
+            expect(HexColorGenerate.send(color, type: example_type)).to be_a(String)
+            expect(HexColorGenerate.send(color, type: example_type)).to match(/^#[0-9a-fA-F]{6}$/)
+          end
+        end
+      end
+    end
   end
 
   describe ".gradient" do
@@ -98,11 +110,15 @@ RSpec.describe "HexColorGenerate" do
 
     context "with invalid steps value" do
       it "raises an ArgumentError for steps: 0" do
-        expect { HexColorGenerate.gradient(:red, :blue, steps: 0) }.to raise_error(ArgumentError, "steps must be 1 or greater")
+        expect do
+          HexColorGenerate.gradient(:red, :blue, steps: 0)
+        end.to raise_error(ArgumentError, "steps must be 1 or greater")
       end
 
       it "raises an ArgumentError for steps: -1" do
-        expect { HexColorGenerate.gradient(:red, :blue, steps: -1) }.to raise_error(ArgumentError, "steps must be 1 or greater")
+        expect do
+          HexColorGenerate.gradient(:red, :blue, steps: -1)
+        end.to raise_error(ArgumentError, "steps must be 1 or greater")
       end
     end
 
