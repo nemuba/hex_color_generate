@@ -29,21 +29,13 @@ module HexColorGenerate
     # @param steps [Integer] the number of steps in the gradient
     # @return [Array<String>] an array of hex color strings
     def gradient(color1, color2, steps: 10)
-      raise ArgumentError, "steps must be 1 or greater" if steps < 1
-
-      hex_color1 = send(color1)
-      hex_color2 = send(color2)
+      _validate_gradient_steps(steps)
+      hex_color1, hex_color2 = _fetch_gradient_start_end_hex(color1, color2)
 
       rgb1 = hex_to_rgb(hex_color1)
       rgb2 = hex_to_rgb(hex_color2)
 
-      gradient_colors = []
-      steps.times do |i|
-        ratio = steps == 1 ? 0.0 : i.to_f / (steps - 1) # Corrected ternary parentheses
-        r, g, b = _interpolate_rgb_components(rgb1, rgb2, ratio) # Use helper
-        gradient_colors << rgb_to_hex(r, g, b)
-      end
-      gradient_colors
+      _generate_gradient_colors(rgb1, rgb2, steps)
     end
 
     COLORS.each do |method_name_sym, color_types_hash|
@@ -111,10 +103,47 @@ module HexColorGenerate
     # @param ratio [Float] interpolation ratio
     # @return [Array<Integer>] interpolated RGB array [r, g, b]
     def _interpolate_rgb_components(rgb1, rgb2, ratio)
-      r = ((rgb1[0] * (1 - ratio)) + (rgb2[0] * ratio)).round
-      g = ((rgb1[1] * (1 - ratio)) + (rgb2[1] * ratio)).round
-      b = ((rgb1[2] * (1 - ratio)) + (rgb2[2] * ratio)).round
+      r1, g1, b1 = rgb1
+      r2, g2, b2 = rgb2
+
+      one_minus_ratio = 1 - ratio
+
+      # RuboCop's recommended parentheses for precedence are maintained
+      r = ((r1 * one_minus_ratio) + (r2 * ratio)).round
+      g = ((g1 * one_minus_ratio) + (g2 * ratio)).round
+      b = ((b1 * one_minus_ratio) + (b2 * ratio)).round
       [r, g, b]
+    end
+
+    # Generate the array of hex color strings for the gradient
+    # @param rgb1 [Array<Integer>] starting RGB color
+    # @param rgb2 [Array<Integer>] ending RGB color
+    # @param steps [Integer] the number of steps
+    # @return [Array<String>] an array of hex color strings
+    def _generate_gradient_colors(rgb1, rgb2, steps)
+      gradient_colors = []
+      steps.times do |i|
+        ratio = steps == 1 ? 0.0 : i.to_f / (steps - 1)
+        # NOTE: _interpolate_rgb_components is already a private helper
+        r_int, g_int, b_int = _interpolate_rgb_components(rgb1, rgb2, ratio)
+        gradient_colors << rgb_to_hex(r_int, g_int, b_int)
+      end
+      gradient_colors
+    end
+
+    # Validate the number of steps for a gradient
+    # @param steps [Integer] the number of steps
+    # @raise [ArgumentError] if steps is less than 1
+    def _validate_gradient_steps(steps)
+      raise ArgumentError, "steps must be 1 or greater" if steps < 1
+    end
+
+    # Fetch the hex color strings for the start and end points of a gradient
+    # @param color1_name [Symbol] the starting color name
+    # @param color2_name [Symbol] the ending color name
+    # @return [Array<String>] an array containing two hex color strings [hex_color1, hex_color2]
+    def _fetch_gradient_start_end_hex(color1_name, color2_name)
+      [send(color1_name), send(color2_name)]
     end
   end
 end
