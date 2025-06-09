@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper' # Keep spec_helper
+require "spec_helper" # Keep spec_helper
 
 RSpec.describe "HexColorGenerate" do # Keep main describe block
   describe "gem structure and constants" do
